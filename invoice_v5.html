@@ -14,14 +14,13 @@
         :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; --sidebar-width: 260px; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); overflow-x: hidden; }
         
-        /* SIDEBAR */
+  
         .sidebar { height: 100vh; width: var(--sidebar-width); position: fixed; top: 0; left: 0; background: linear-gradient(180deg, var(--primary) 0%, #1a252f 100%); color: white; padding-top: 25px; z-index: 1000; }
         .sidebar-brand { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
         .sidebar-menu a { padding: 15px 25px; text-decoration: none; font-size: 15px; color: #bdc3c7; display: flex; align-items: center; border-left: 4px solid transparent; transition: 0.2s; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.1); color: white; border-left-color: var(--accent); }
         .license-info { position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 11px; color: #7f8c8d; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
 
-        /* MAIN */
         .main-content { margin-left: var(--sidebar-width); padding: 30px; }
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; background: white; }
         .stat-card { padding: 25px; border-radius: 10px; color: white; position: relative; overflow: hidden; }
@@ -30,12 +29,10 @@
         .bg-orange { background: linear-gradient(135deg, #f39c12, #d35400); }
         .bg-purple { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
 
-        /* LICENSE SCREEN */
         #license-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; color: white; backdrop-filter: blur(5px); }
         .license-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); text-align: center; max-width: 450px; width: 90%; }
         .license-box input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: white; text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; margin: 20px 0; display: block; width: 100%; padding: 10px; }
 
-        /* PRINT STYLES */
         @media print {
             body { background: white; -webkit-print-color-adjust: exact; }
             .sidebar, .main-content > div:not(.printable-area) { display: none !important; }
@@ -43,7 +40,7 @@
             @page { size: A4; margin: 10mm; }
         }
 
-        /* INVOICE TEMPLATE */
+       
         .printable-area { display: none; font-family: 'Times New Roman', serif; color: #000; }
         .doc-container { border: 2px solid #000; min-height: 275mm; position: relative; }
         .doc-header { background: #eee; padding: 15px; border-bottom: 2px solid #000; display: flex; justify-content: space-between; align-items: center; }
@@ -197,13 +194,11 @@
     <div id="print-container" class="printable-area"></div>
 
     <script>
-        // --- CORE DATA STORE ---
         const DB_KEY = 'mib_enterprise_v6';
         const LIC_KEY = 'mib_lic_v6';
         let store = { orders: JSON.parse(localStorage.getItem(DB_KEY)) || [] };
         let charts = {};
 
-        // --- 1. SYSTEM INIT ---
         const system = {
             init: () => {
                 if(!system.checkLicense()) return;
@@ -280,7 +275,7 @@
                 const wsMaster = XLSX.utils.json_to_sheet(masterData);
                 XLSX.utils.book_append_sheet(wb, wsMaster, "Master Data");
 
-                // SHEET 2: MONTHLY ANALYSIS (Calculated Pivot)
+              
                 const monthlyStats = {};
                 store.orders.forEach(o => {
                     const monthKey = o.date.substring(0, 7); // "2025-10"
@@ -319,7 +314,7 @@
             }
         };
 
-        // --- 3. DASHBOARD VISUALIZATION ---
+
         const dashboard = {
             render: () => {
                 // KPIs
@@ -393,7 +388,7 @@
             }
         };
 
-        // --- 4. ENTRY & LOGIC ---
+
         const entry = {
             reset: () => {
                 document.getElementById('invoiceForm').reset();
@@ -446,8 +441,6 @@
                 router.navigate('records');
             }
         };
-
-        // --- 5. UI ROUTER ---
         const router = {
             navigate: (id) => {
                 ['dashboard','entry','records'].forEach(x => {
@@ -462,7 +455,6 @@
             }
         };
 
-        // --- 6. RECORDS TABLE & PRINT ---
         const historyTable = {
             render: () => {
                 const tb = document.querySelector('#ordersTable tbody'); tb.innerHTML='';
@@ -589,4 +581,5 @@
         window.onload = system.init;
     </script>
 </body>
+
 </html>
