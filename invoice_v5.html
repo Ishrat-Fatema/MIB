@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MIB | Enterprise Sales Navigator</title>
+    <title>Group Business Navigator</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,13 +15,14 @@
         :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; --sidebar-width: 260px; }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); overflow-x: hidden; }
         
-  
+        /* SIDEBAR */
         .sidebar { height: 100vh; width: var(--sidebar-width); position: fixed; top: 0; left: 0; background: linear-gradient(180deg, var(--primary) 0%, #1a252f 100%); color: white; padding-top: 25px; z-index: 1000; }
-        .sidebar-brand { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
+        .sidebar-brand { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px; }
         .sidebar-menu a { padding: 15px 25px; text-decoration: none; font-size: 15px; color: #bdc3c7; display: flex; align-items: center; border-left: 4px solid transparent; transition: 0.2s; }
         .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.1); color: white; border-left-color: var(--accent); }
         .license-info { position: absolute; bottom: 20px; width: 100%; text-align: center; font-size: 11px; color: #7f8c8d; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
 
+        /* MAIN */
         .main-content { margin-left: var(--sidebar-width); padding: 30px; }
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 25px; background: white; }
         .stat-card { padding: 25px; border-radius: 10px; color: white; position: relative; overflow: hidden; }
@@ -29,10 +31,17 @@
         .bg-orange { background: linear-gradient(135deg, #f39c12, #d35400); }
         .bg-purple { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
 
-        #license-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; color: white; backdrop-filter: blur(5px); }
-        .license-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); text-align: center; max-width: 450px; width: 90%; }
-        .license-box input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: white; text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; margin: 20px 0; display: block; width: 100%; padding: 10px; }
+        /* ONE TIME PASSWORD SCREEN */
+        #otp-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; color: white; backdrop-filter: blur(5px); }
+        .otp-box { background: rgba(255,255,255,0.1); padding: 40px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.2); text-align: center; max-width: 450px; width: 90%; }
+        .otp-box input { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.3); color: white; text-align: center; font-family: monospace; font-size: 18px; letter-spacing: 2px; margin: 20px 0; display: block; width: 100%; padding: 10px; }
 
+        /* TABLE STATUS BADGES */
+        .badge-status { cursor: pointer; min-width: 90px; display: inline-block; text-align: center; padding: 5px; border-radius: 4px; font-size: 11px; margin: 1px;}
+        .badge-yes { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge-no { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+        /* PRINT STYLES */
         @media print {
             body { background: white; -webkit-print-color-adjust: exact; }
             .sidebar, .main-content > div:not(.printable-area) { display: none !important; }
@@ -40,7 +49,7 @@
             @page { size: A4; margin: 10mm; }
         }
 
-       
+        /* INVOICE TEMPLATE */
         .printable-area { display: none; font-family: 'Times New Roman', serif; color: #000; }
         .doc-container { border: 2px solid #000; min-height: 275mm; position: relative; }
         .doc-header { background: #eee; padding: 15px; border-bottom: 2px solid #000; display: flex; justify-content: space-between; align-items: center; }
@@ -53,140 +62,184 @@
 </head>
 <body>
 
-    <div id="license-overlay">
-        <div class="license-box">
-            <i class="fas fa-lock fa-3x mb-3 text-warning"></i>
-            <h3>SYSTEM LOCKED</h3>
-            <p>Enter License Key</p>
-            <input type="text" id="licenseKeyInput" placeholder="KEY-XXXX-XXXX">
-            <button class="btn btn-success w-100" onclick="system.activateLicense()">UNLOCK</button>
-            <div id="contact-admin" style="display:none; color: #ff6b6b; margin-top: 15px; font-weight: bold;">License Expired. Contact Admin.</div>
+    <div id="otp-overlay">
+        <div class="otp-box">
+            <i class="fas fa-shield-alt fa-3x mb-3 text-warning"></i>
+            <h3>SECURITY CHECK</h3>
+            <p>Enter One Time Password</p>
+            <input type="text" id="otpInput" placeholder="XXXX-XXXX-XXXX">
+            <button class="btn btn-success w-100" onclick="system.activate()">ENTER</button>
+            <div id="contact-admin" style="display:none; color: #ff6b6b; margin-top: 15px; font-weight: bold;">Access Expired. Contact Admin.</div>
         </div>
     </div>
 
     <div class="sidebar">
-        <div class="sidebar-brand"><i class="fas fa-chart-network"></i> MIB Systems</div>
+        <div class="sidebar-brand"><i class="fas fa-layer-group"></i> Group Navigator</div>
         <div class="sidebar-menu">
             <a href="#" onclick="router.navigate('dashboard')" id="nav-dashboard" class="active"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
-            <a href="#" onclick="router.navigate('entry')" id="nav-entry"><i class="fas fa-plus-circle me-2"></i> New Transaction</a>
-            <a href="#" onclick="router.navigate('records')" id="nav-records"><i class="fas fa-list me-2"></i> Records</a>
-            <hr style="border-color: rgba(255,255,255,0.1);">
-            <a href="#" onclick="system.backupData()" class="text-warning"><i class="fas fa-cloud-download-alt me-2"></i> Backup Data</a>
+            <a href="#" onclick="router.navigate('entry')" id="nav-entry"><i class="fas fa-plus-circle me-2"></i> New Order</a>
+            <a href="#" onclick="system.backupData()" class="text-warning mt-4"><i class="fas fa-cloud-download-alt me-2"></i> Backup</a>
             <input type="file" id="restoreFile" style="display:none" onchange="system.restoreData(this)">
-            <a href="#" onclick="document.getElementById('restoreFile').click()" class="text-info"><i class="fas fa-cloud-upload-alt me-2"></i> Restore Data</a>
+            <a href="#" onclick="document.getElementById('restoreFile').click()" class="text-info"><i class="fas fa-cloud-upload-alt me-2"></i> Restore</a>
         </div>
-        <div class="license-info">v6.0 Gold | Valid: <span id="valid-until-display">...</span></div>
+        <div class="license-info">Happy Business: <span id="valid-until-display">...</span></div>
     </div>
 
     <div class="main-content">
         
         <div id="dashboard-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="m-0">Business Intelligence</h3>
-                <button onclick="reports.generateAdvancedExcel()" class="btn btn-success shadow-sm">
-                    <i class="fas fa-file-excel me-2"></i> Download Analytics Report
+                <h3 class="m-0">Operations Overview</h3>
+                <button onclick="reports.downloadExcel()" class="btn btn-success shadow-sm">
+                    <i class="fas fa-file-excel me-2"></i> Download Full Report
                 </button>
             </div>
 
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="stat-card bg-blue">
-                        <h6 class="text-uppercase opacity-75">Total Revenue</h6>
+                        <h6 class="text-uppercase opacity-75">Total PO Amount</h6>
                         <h2>₹ <span id="kpi-revenue">0</span></h2>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-card bg-green">
-                        <h6 class="text-uppercase opacity-75">Orders Processed</h6>
-                        <h2 id="kpi-orders">0</h2>
+                    <div class="stat-card bg-purple">
+                        <h6 class="text-uppercase opacity-75">Pending Delivery</h6>
+                        <h2 id="kpi-pending-delivery">0</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card bg-orange">
-                        <h6 class="text-uppercase opacity-75">Pending Amount</h6>
-                        <h2>₹ <span id="kpi-pending">0</span></h2>
+                        <h6 class="text-uppercase opacity-75">Invoices Pending</h6>
+                        <h2 id="kpi-pending-invoice">0</h2>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="stat-card bg-purple">
-                        <h6 class="text-uppercase opacity-75">Tax Collected</h6>
-                        <h2>₹ <span id="kpi-tax">0</span></h2>
+                    <div class="stat-card bg-green">
+                        <h6 class="text-uppercase opacity-75">Payments Received</h6>
+                        <h2 id="kpi-paid">0</h2>
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card p-3 h-100">
-                        <h6 class="card-title text-muted mb-3">Sales Trend (Revenue Analysis)</h6>
-                        <canvas id="salesChart"></canvas>
+            <div class="card p-0 overflow-hidden">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="m-0">Active Orders</h5>
+                        <input type="text" class="form-control w-25 form-control-sm" placeholder="Search PO, Customer..." onkeyup="dashboard.renderTable(this.value)">
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card p-3 mb-3">
-                        <h6 class="card-title text-muted mb-3">Payment Status</h6>
-                        <div style="height: 200px; display: flex; justify-content: center;">
-                            <canvas id="statusChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="card p-3">
-                        <h6 class="card-title text-muted mb-3">Top Clients</h6>
-                        <canvas id="clientChart" height="200"></canvas>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle small" id="dashboardTable">
+                        <thead class="table-light text-uppercase">
+                            <tr>
+                                <th>Date</th>
+                                <th>Company</th>
+                                <th>PO No</th>
+                                <th>Description</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th class="text-center">Material</th>
+                                <th class="text-center">Invoice</th>
+                                <th class="text-center">Payment</th>
+                                <th class="text-end">Docs</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <div id="entry-section" style="display: none;">
             <div class="d-flex justify-content-between mb-3">
-                <h3>New Invoice / Challan</h3>
-                <button class="btn btn-outline-primary btn-sm" onclick="entry.loadSample()">Load Sample</button>
+                <h3>New Order Entry</h3>
+                <button class="btn btn-outline-secondary btn-sm" onclick="router.navigate('dashboard')">Back to Dashboard</button>
             </div>
             <div class="card p-4">
-                <form id="invoiceForm">
-                    <div class="row mb-3">
-                        <div class="col-md-3"><label class="small text-muted">PO Number</label><input type="text" id="poNo" class="form-control" required></div>
-                        <div class="col-md-3"><label class="small text-muted">PO Date</label><input type="date" id="poDate" class="form-control" required></div>
-                        <div class="col-md-3"><label class="small text-muted">Vehicle No</label><input type="text" id="vehicleNo" class="form-control" placeholder="MH-XX-XXXX"></div>
-                        <div class="col-md-3"><label class="small text-muted">Invoice No</label><input type="text" id="invNo" class="form-control bg-light" readonly></div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6"><label class="small text-muted">Client Name</label><input type="text" id="clientName" class="form-control" required></div>
-                        <div class="col-md-6"><label class="small text-muted">Address</label><input type="text" id="clientAddr" class="form-control"></div>
-                    </div>
-                    <div class="mb-3"><label class="small text-muted">Item Description</label><textarea id="itemDesc" class="form-control" rows="2" required></textarea></div>
-                    
-                    <div class="row bg-light p-3 rounded mx-0 border">
-                        <div class="col-md-2"><label class="small">HSN</label><input type="text" id="hsnCode" class="form-control" value="8536"></div>
-                        <div class="col-md-2"><label class="small">Qty</label><input type="number" id="qty" class="form-control" oninput="entry.calc()"></div>
-                        <div class="col-md-3"><label class="small">Rate</label><input type="number" id="rate" class="form-control" oninput="entry.calc()" step="0.01"></div>
-                        <div class="col-md-2"><label class="small">GST %</label>
-                            <select id="gstRate" class="form-select" onchange="entry.calc()">
-                                <option value="18">18%</option><option value="12">12%</option><option value="5">5%</option><option value="28">28%</option>
-                            </select>
+                <form id="orderForm">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-primary">SELECT COMPANY</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="company" id="comp1" value="KI" checked>
+                                <label class="btn btn-outline-primary" for="comp1">KI</label>
+
+                                <input type="radio" class="btn-check" name="company" id="comp2" value="MIB">
+                                <label class="btn btn-outline-primary" for="comp2">MIB</label>
+
+                                <input type="radio" class="btn-check" name="company" id="comp3" value="Shubh">
+                                <label class="btn btn-outline-primary" for="comp3">SHUBH</label>
+
+                                <input type="radio" class="btn-check" name="company" id="comp4" value="Sanman">
+                                <label class="btn btn-outline-primary" for="comp4">SANMAN</label>
+                            </div>
                         </div>
-                        <div class="col-md-3 text-end">
-                            <label class="small d-block">Grand Total</label>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label class="small text-muted">PO Date</label>
+                            <input type="date" id="poDate" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small text-muted">PO Number</label>
+                            <input type="text" id="poNo" class="form-control" placeholder="Enter PO No" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small text-muted">Customer Name</label>
+                            <input type="text" id="clientName" class="form-control" placeholder="Client Name" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small text-muted">Customer Phone</label>
+                            <input type="text" id="clientPhone" class="form-control" placeholder="Mobile No">
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label class="small text-muted">PO Item Description</label>
+                            <textarea id="itemDesc" class="form-control" rows="2" placeholder="Item Details..." required></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small text-muted">Internal Remarks (Hidden on Dashboard)</label>
+                            <textarea id="remarks" class="form-control" rows="2" placeholder="Notes for Excel report..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row bg-light p-3 rounded mx-0 border mb-3">
+                        <div class="col-md-2">
+                            <label class="small">Qty</label>
+                            <input type="number" id="qty" class="form-control" value="1" oninput="entry.calc()">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small">Rate / Amount</label>
+                            <input type="number" id="rate" class="form-control" placeholder="0.00" oninput="entry.calc()" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center pt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="applyGst" onchange="entry.calc()">
+                                <label class="form-check-label small" for="applyGst">Add 18% GST</label>
+                            </div>
+                        </div>
+                        <div class="col-md-5 text-end">
+                            <label class="small d-block">Total PO Amount</label>
                             <h3 class="text-success m-0">₹ <span id="displayTotal">0.00</span></h3>
-                            <small class="text-muted">Tax: ₹<span id="displayTax">0.00</span></small>
+                            <small class="text-muted" id="taxDisplay">Tax: ₹0.00</small>
                         </div>
                     </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="small text-muted">Invoice No (Auto/Manual)</label>
+                            <input type="text" id="invNo" class="form-control bg-white fw-bold">
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-end mt-3">
-                        <button type="button" class="btn btn-primary px-5" onclick="entry.save()"><i class="fas fa-save me-2"></i> Save Record</button>
+                        <button type="button" class="btn btn-primary px-5" onclick="entry.save()"><i class="fas fa-save me-2"></i> Save Order</button>
                     </div>
                 </form>
-            </div>
-        </div>
-
-        <div id="records-section" style="display: none;">
-            <h3>Transaction Records</h3>
-            <div class="card p-0 overflow-hidden">
-                <table class="table table-hover mb-0 align-middle" id="ordersTable">
-                    <thead class="table-light small text-uppercase">
-                        <tr><th>Date</th><th>Inv #</th><th>Client</th><th>Amount</th><th>Status</th><th class="text-end">Actions</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
             </div>
         </div>
     </div>
@@ -194,21 +247,21 @@
     <div id="print-container" class="printable-area"></div>
 
     <script>
-        const DB_KEY = 'mib_enterprise_v6';
-        const LIC_KEY = 'mib_lic_v6';
+        // --- CONFIG & STORAGE ---
+        const DB_KEY = 'group_nav_db_v7';
+        const OTP_KEY = 'group_otp_v7';
         let store = { orders: JSON.parse(localStorage.getItem(DB_KEY)) || [] };
-        let charts = {};
 
+        // --- 1. SYSTEM INIT ---
         const system = {
             init: () => {
-                if(!system.checkLicense()) return;
-                dashboard.render(); 
-                historyTable.render(); 
+                if(!system.checkOTP()) return;
+                dashboard.init(); 
                 entry.reset();
             },
-            checkLicense: () => {
-                const key = localStorage.getItem(LIC_KEY);
-                const overlay = document.getElementById('license-overlay');
+            checkOTP: () => {
+                const key = localStorage.getItem(OTP_KEY);
+                const overlay = document.getElementById('otp-overlay');
                 if(!key) { overlay.style.display='flex'; return false; }
                 try {
                     const parts = atob(key).split('|');
@@ -222,16 +275,15 @@
                     overlay.style.display='none'; return true;
                 } catch(e) { overlay.style.display='flex'; return false; }
             },
-            activateLicense: () => {
-                const k = document.getElementById('licenseKeyInput').value.trim();
-                if(k) { localStorage.setItem(LIC_KEY, k); location.reload(); }
+            activate: () => {
+                const k = document.getElementById('otpInput').value.trim();
+                if(k) { localStorage.setItem(OTP_KEY, k); location.reload(); }
             },
             backupData: () => {
                 const blob = new Blob([JSON.stringify(store.orders)], {type: "application/json"});
-                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = `MIB_Backup_${new Date().toISOString().slice(0,10)}.json`;
+                a.href = URL.createObjectURL(blob);
+                a.download = `Group_Backup_${new Date().toISOString().slice(0,10)}.json`;
                 a.click();
             },
             restoreData: (input) => {
@@ -242,333 +294,253 @@
                     try {
                         store.orders = JSON.parse(e.target.result);
                         localStorage.setItem(DB_KEY, JSON.stringify(store.orders));
-                        alert("Database Restored Successfully!");
-                        location.reload();
-                    } catch(err) { alert("Invalid Backup File"); }
+                        alert("Restored Successfully!"); location.reload();
+                    } catch(err) { alert("Invalid File"); }
                 };
                 reader.readAsText(file);
             }
         };
 
-        // --- 2. ADVANCED EXCEL REPORTING ENGINE ---
-        const reports = {
-            generateAdvancedExcel: () => {
-                const wb = XLSX.utils.book_new();
-
-                // SHEET 1: MASTER DATA (Raw Log)
-                const masterData = store.orders.map(o => ({
-                    "Date": o.date,
-                    "Time": new Date(o.id).toLocaleTimeString(),
-                    "Invoice No": o.invNo,
-                    "PO No": o.poNo,
-                    "Client Name": o.client,
-                    "GSTIN State": "Maharashtra (27)",
-                    "Description": o.desc,
-                    "HSN": o.hsn,
-                    "Qty": o.qty,
-                    "Rate": o.rate,
-                    "Basic Value": o.basic,
-                    "Tax Amount": o.tax,
-                    "Total Amount": o.total,
-                    "Payment Status": o.status
-                }));
-                const wsMaster = XLSX.utils.json_to_sheet(masterData);
-                XLSX.utils.book_append_sheet(wb, wsMaster, "Master Data");
-
-              
-                const monthlyStats = {};
-                store.orders.forEach(o => {
-                    const monthKey = o.date.substring(0, 7); // "2025-10"
-                    if (!monthlyStats[monthKey]) monthlyStats[monthKey] = { revenue: 0, tax: 0, count: 0 };
-                    monthlyStats[monthKey].revenue += o.total;
-                    monthlyStats[monthKey].tax += o.tax;
-                    monthlyStats[monthKey].count += 1;
-                });
-
-                const analysisData = Object.keys(monthlyStats).sort().map(m => ({
-                    "Month": m,
-                    "Total Orders": monthlyStats[m].count,
-                    "Revenue (₹)": monthlyStats[m].revenue,
-                    "Tax Collected (₹)": monthlyStats[m].tax,
-                    "Avg Order Value": (monthlyStats[m].revenue / monthlyStats[m].count).toFixed(2)
-                }));
-                const wsAnalysis = XLSX.utils.json_to_sheet(analysisData);
-                XLSX.utils.book_append_sheet(wb, wsAnalysis, "Monthly Analysis");
-
-                // SHEET 3: CLIENT PERFORMANCE
-                const clientStats = {};
-                store.orders.forEach(o => {
-                    if (!clientStats[o.client]) clientStats[o.client] = 0;
-                    clientStats[o.client] += o.total;
-                });
-                const clientData = Object.keys(clientStats).map(c => ({
-                    "Client Name": c,
-                    "Total Spend (₹)": clientStats[c]
-                })).sort((a,b) => b["Total Spend (₹)"] - a["Total Spend (₹)"]);
-                
-                const wsClients = XLSX.utils.json_to_sheet(clientData);
-                XLSX.utils.book_append_sheet(wb, wsClients, "Top Clients");
-
-                // DOWNLOAD
-                XLSX.writeFile(wb, `MIB_Advanced_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
-            }
-        };
-
-
+        // --- 2. DASHBOARD LOGIC ---
         const dashboard = {
-            render: () => {
-                // KPIs
+            init: () => {
+                dashboard.renderTable();
+                dashboard.renderKPIs();
+            },
+            renderKPIs: () => {
                 const totalRev = store.orders.reduce((s, o) => s + o.total, 0);
-                const totalTax = store.orders.reduce((s, o) => s + o.tax, 0);
-                const pending = store.orders.filter(o => o.status === 'Unpaid').reduce((s, o) => s + o.total, 0);
-                
-                document.getElementById('kpi-revenue').innerText = totalRev.toLocaleString('en-IN', {maximumFractionDigits:0});
-                document.getElementById('kpi-orders').innerText = store.orders.length;
-                document.getElementById('kpi-pending').innerText = pending.toLocaleString('en-IN', {maximumFractionDigits:0});
-                document.getElementById('kpi-tax').innerText = totalTax.toLocaleString('en-IN', {maximumFractionDigits:0});
+                const pendingDel = store.orders.filter(o => o.statusDNS === 'Pending').length;
+                const pendingInv = store.orders.filter(o => o.statusInv === 'Not Submitted').length;
+                const paidCount = store.orders.filter(o => o.statusPay === 'Paid').length;
 
-                // GRAPH 1: Sales Trend (Monthly)
-                const monthData = {};
-                store.orders.forEach(o => {
-                    const m = o.date.substring(0, 7);
-                    monthData[m] = (monthData[m] || 0) + o.total;
-                });
-                const sortedMonths = Object.keys(monthData).sort();
-                
-                if(charts.sales) charts.sales.destroy();
-                charts.sales = new Chart(document.getElementById('salesChart'), {
-                    type: 'line',
-                    data: {
-                        labels: sortedMonths,
-                        datasets: [{
-                            label: 'Revenue',
-                            data: sortedMonths.map(m => monthData[m]),
-                            borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }]
-                    },
-                    options: { responsive: true, plugins: { legend: { display: false } } }
-                });
-
-                // GRAPH 2: Payment Status (Pie)
-                const paid = store.orders.filter(o => o.status === 'Paid').length;
-                const unpaid = store.orders.filter(o => o.status === 'Unpaid').length;
-                
-                if(charts.status) charts.status.destroy();
-                charts.status = new Chart(document.getElementById('statusChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Paid', 'Unpaid'],
-                        datasets: [{ data: [paid, unpaid], backgroundColor: ['#2ecc71', '#e74c3c'] }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-
-                // GRAPH 3: Top 5 Clients
-                const clientMap = {};
-                store.orders.forEach(o => clientMap[o.client] = (clientMap[o.client] || 0) + o.total);
-                const topClients = Object.entries(clientMap).sort((a,b) => b[1] - a[1]).slice(0, 5);
-
-                if(charts.clients) charts.clients.destroy();
-                charts.clients = new Chart(document.getElementById('clientChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: topClients.map(c => c[0].substring(0, 10) + '...'),
-                        datasets: [{
-                            label: 'Sales',
-                            data: topClients.map(c => c[1]),
-                            backgroundColor: '#9b59b6',
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } } }
-                });
-            }
-        };
-
-
-        const entry = {
-            reset: () => {
-                document.getElementById('invoiceForm').reset();
-                const next = store.orders.length + 1;
-                document.getElementById('invNo').value = `INV-${new Date().getFullYear()}-${String(next).padStart(3,'0')}`;
-                document.getElementById('poDate').valueAsDate = new Date();
-                entry.calc();
+                document.getElementById('kpi-revenue').innerText = totalRev.toLocaleString('en-IN');
+                document.getElementById('kpi-pending-delivery').innerText = pendingDel;
+                document.getElementById('kpi-pending-invoice').innerText = pendingInv;
+                document.getElementById('kpi-paid').innerText = paidCount;
             },
-            calc: () => {
-                const q = parseFloat(document.getElementById('qty').value)||0;
-                const r = parseFloat(document.getElementById('rate').value)||0;
-                const g = parseFloat(document.getElementById('gstRate').value)||0;
-                const b = q*r; 
-                const t = b*(g/100);
-                document.getElementById('displayTotal').innerText = (b+t).toLocaleString('en-IN', {minimumFractionDigits:2});
-                document.getElementById('displayTax').innerText = t.toFixed(2);
-                return { basic: b, tax: t, total: b+t };
-            },
-            loadSample: () => {
-                document.getElementById('poNo').value = "52256261101789";
-                document.getElementById('clientName').value = "SSE/TL/PL, Western Railway";
-                document.getElementById('itemDesc').value = "Aluminium type Junction Connector/Cable Jointer (PL: 468101800017)";
-                document.getElementById('qty').value = 150;
-                document.getElementById('rate').value = 2718;
-                entry.calc();
-            },
-            save: () => {
-                if(!document.getElementById('invoiceForm').checkValidity()) { alert("Please fill all required fields"); return; }
-                const c = entry.calc();
-                const o = {
-                    id: Date.now(),
-                    invNo: document.getElementById('invNo').value,
-                    poNo: document.getElementById('poNo').value,
-                    poDate: document.getElementById('poDate').value,
-                    vehicleNo: document.getElementById('vehicleNo').value,
-                    client: document.getElementById('clientName').value,
-                    addr: document.getElementById('clientAddr').value || '',
-                    desc: document.getElementById('itemDesc').value,
-                    hsn: document.getElementById('hsnCode').value,
-                    qty: document.getElementById('qty').value,
-                    rate: document.getElementById('rate').value,
-                    gst: document.getElementById('gstRate').value,
-                    basic: c.basic, tax: c.tax, total: c.total,
-                    status: 'Unpaid',
-                    date: new Date().toISOString().split('T')[0]
-                };
-                store.orders.push(o);
-                localStorage.setItem(DB_KEY, JSON.stringify(store.orders));
-                alert("Saved!");
-                router.navigate('records');
-            }
-        };
-        const router = {
-            navigate: (id) => {
-                ['dashboard','entry','records'].forEach(x => {
-                    document.getElementById(x+'-section').style.display='none';
-                    document.getElementById('nav-'+x).classList.remove('active');
-                });
-                document.getElementById(id+'-section').style.display='block';
-                document.getElementById('nav-'+id).classList.add('active');
-                if(id === 'dashboard') dashboard.render();
-                if(id === 'records') historyTable.render();
-                if(id === 'entry') entry.reset();
-            }
-        };
-
-        const historyTable = {
-            render: () => {
-                const tb = document.querySelector('#ordersTable tbody'); tb.innerHTML='';
+            renderTable: (search = '') => {
+                const tb = document.querySelector('#dashboardTable tbody'); 
+                tb.innerHTML='';
+                const term = search.toLowerCase();
+                
                 [...store.orders].reverse().forEach(o => {
+                    if(term && !o.client.toLowerCase().includes(term) && !o.poNo.toLowerCase().includes(term)) return;
+
                     const tr = document.createElement('tr');
+                    
+                    // Status Badges HTML Generator
+                    const dnsClass = o.statusDNS === 'Delivered' ? 'badge-yes' : 'badge-no';
+                    const invClass = o.statusInv === 'Submitted' ? 'badge-yes' : 'badge-no';
+                    const payClass = o.statusPay === 'Paid' ? 'badge-yes' : 'badge-no';
+
                     tr.innerHTML = `
-                        <td>${o.date}</td>
-                        <td class="fw-bold text-dark">${o.invNo}</td>
-                        <td>${o.client}</td>
-                        <td class="fw-bold text-success">₹${o.total.toFixed(2)}</td>
-                        <td><span class="badge bg-${o.status==='Paid'?'success':'danger'}">${o.status}</span></td>
+                        <td>${o.poDate}</td>
+                        <td><span class="badge bg-secondary">${o.company}</span></td>
+                        <td>${o.poNo}</td>
+                        <td title="${o.desc}">${o.desc.substring(0,20)}...</td>
+                        <td>
+                            <div>${o.client}</div>
+                            <small class="text-muted">${o.phone}</small>
+                        </td>
+                        <td class="fw-bold">₹${o.total.toLocaleString('en-IN')}</td>
+                        
+                        <td class="text-center"><span class="badge-status ${dnsClass}" onclick="dashboard.toggleStatus(${o.id}, 'statusDNS', ['Pending','Delivered'])">${o.statusDNS}</span></td>
+                        <td class="text-center"><span class="badge-status ${invClass}" onclick="dashboard.toggleStatus(${o.id}, 'statusInv', ['Not Submitted','Submitted'])">${o.statusInv}</span></td>
+                        <td class="text-center"><span class="badge-status ${payClass}" onclick="dashboard.toggleStatus(${o.id}, 'statusPay', ['Unpaid','Paid'])">${o.statusPay}</span></td>
+                        
                         <td class="text-end">
-                            <button class="btn btn-sm btn-outline-success me-1" onclick="toggleStatus(${o.id})" title="Toggle Paid">$</button>
                             <button class="btn btn-sm btn-outline-primary" onclick="printer.print(${o.id},'inv')"><i class="fas fa-file-invoice"></i></button>
                             <button class="btn btn-sm btn-outline-dark" onclick="printer.print(${o.id},'dc')"><i class="fas fa-truck"></i></button>
                         </td>`;
                     tb.appendChild(tr);
                 });
+            },
+            toggleStatus: (id, field, options) => {
+                const o = store.orders.find(x => x.id === id);
+                o[field] = o[field] === options[0] ? options[1] : options[0];
+                localStorage.setItem(DB_KEY, JSON.stringify(store.orders));
+                dashboard.renderTable();
+                dashboard.renderKPIs();
             }
         };
 
-        function toggleStatus(id) {
-            const o = store.orders.find(x => x.id === id);
-            o.status = o.status === 'Paid' ? 'Unpaid' : 'Paid';
-            localStorage.setItem(DB_KEY, JSON.stringify(store.orders));
-            historyTable.render();
-        }
+        // --- 3. ENTRY LOGIC ---
+        const entry = {
+            reset: () => {
+                document.getElementById('orderForm').reset();
+                const next = store.orders.length + 1;
+                const year = new Date().getFullYear();
+                document.getElementById('invNo').value = `INV/${year}/${String(next).padStart(3,'0')}`;
+                document.getElementById('poDate').valueAsDate = new Date();
+                entry.calc();
+            },
+            calc: () => {
+                const qty = parseFloat(document.getElementById('qty').value) || 0;
+                const rate = parseFloat(document.getElementById('rate').value) || 0;
+                const isGst = document.getElementById('applyGst').checked;
+                
+                const basic = qty * rate;
+                const tax = isGst ? (basic * 0.18) : 0;
+                const total = basic + tax;
 
+                document.getElementById('displayTotal').innerText = total.toLocaleString('en-IN', {minimumFractionDigits:2});
+                document.getElementById('taxDisplay').innerText = `Tax: ₹${tax.toFixed(2)}`;
+                return { basic, tax, total };
+            },
+            save: () => {
+                const f = document.getElementById('orderForm');
+                if(!f.checkValidity()) { f.reportValidity(); return; }
+                
+                const c = entry.calc();
+                const comp = document.querySelector('input[name="company"]:checked').value;
+                
+                const o = {
+                    id: Date.now(),
+                    company: comp,
+                    poDate: document.getElementById('poDate').value,
+                    poNo: document.getElementById('poNo').value,
+                    client: document.getElementById('clientName').value,
+                    phone: document.getElementById('clientPhone').value,
+                    desc: document.getElementById('itemDesc').value,
+                    remarks: document.getElementById('remarks').value,
+                    invNo: document.getElementById('invNo').value,
+                    
+                    qty: document.getElementById('qty').value,
+                    rate: document.getElementById('rate').value,
+                    hasGst: document.getElementById('applyGst').checked,
+                    
+                    basic: c.basic,
+                    tax: c.tax,
+                    total: c.total,
+                    
+                    statusDNS: 'Pending',
+                    statusInv: 'Not Submitted',
+                    statusPay: 'Unpaid'
+                };
+                
+                store.orders.push(o);
+                localStorage.setItem(DB_KEY, JSON.stringify(store.orders));
+                alert("Order Saved!");
+                router.navigate('dashboard');
+            }
+        };
+
+        // --- 4. EXPORT ENGINE ---
+        const reports = {
+            downloadExcel: () => {
+                const data = store.orders.map(o => ({
+                    "PO Date": o.poDate,
+                    "Company": o.company,
+                    "PO No": o.poNo,
+                    "Customer Name": o.client,
+                    "Customer Phone": o.phone,
+                    "Description": o.desc,
+                    "Remarks": o.remarks,
+                    "Total Amount": o.total,
+                    "Delivery Status": o.statusDNS,
+                    "Invoice Status": o.statusInv,
+                    "Payment Status": o.statusPay
+                }));
+                const ws = XLSX.utils.json_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Order_Log");
+                XLSX.writeFile(wb, `Group_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+            }
+        };
+
+        // --- 5. PRINT ENGINE (DYNAMIC HEADERS) ---
         const printer = {
             numToWords: (n) => n.toFixed(0) + " Rupees Only", // Placeholder
+            
+            getCompanyDetails: (name) => {
+                const db = {
+                    "KI": { title: "KI ENTERPRISES", sub: "Plot 10, MIDC, Aurangabad", gst: "27AAAAA0000A1Z5" },
+                    "MIB": { title: "MIB SYSTEMS", sub: "Plot 74 N-13, CIDCO, Aurangabad", gst: "27BBBBB0000B1Z5" },
+                    "Shubh": { title: "SHUBH INDUSTRIES", sub: "Shop 5, Market Yard, Pune", gst: "27CCCCC0000C1Z5" },
+                    "Sanman": { title: "SANMAN SERVICES", sub: "Sector 9, Vashi, Mumbai", gst: "27DDDDD0000D1Z5" }
+                };
+                return db[name] || db["KI"];
+            },
+
             print: (id, type) => {
                 const o = store.orders.find(x => x.id === id);
+                const comp = printer.getCompanyDetails(o.company);
                 const isInv = type === 'inv';
                 const title = isInv ? "TAX INVOICE" : "DELIVERY CHALLAN";
                 
-                // Tax Columns Logic
-                let taxHead = '', taxBody = '';
-                if(isInv) {
-                    taxHead = `<th width="8%">CGST %</th><th width="10%">CGST Amt</th><th width="8%">SGST %</th><th width="10%">SGST Amt</th>`;
-                    taxBody = `<td align="center">${o.gst/2}%</td><td align="right">${(o.tax/2).toFixed(2)}</td><td align="center">${o.gst/2}%</td><td align="right">${(o.tax/2).toFixed(2)}</td>`;
+                // Tax Rows
+                let taxRows = '';
+                if(isInv && o.hasGst) {
+                    taxRows = `
+                    <div style="display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #ccc;"><span>CGST (9%):</span><span>${(o.tax/2).toFixed(2)}</span></div>
+                    <div style="display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #ccc;"><span>SGST (9%):</span><span>${(o.tax/2).toFixed(2)}</span></div>`;
                 }
 
                 const html = `
                 <div class="doc-container">
                     <div class="doc-header">
                         <div>
-                            <h2 style="margin:0">MIB</h2>
-                            <p style="margin:0; font-size:12px">Plot 74 N-13, CIDCO, Aurangabad - 431001<br>GSTIN: 27ABCDE1234F1Z5 | Mob: 7620858731</p>
+                            <h2 style="margin:0">${comp.title}</h2>
+                            <p style="margin:0; font-size:12px">${comp.sub}<br>GSTIN: ${comp.gst}</p>
                         </div>
                         <div class="text-end">
                             <div class="doc-title">${title}</div>
                             <small>Original for Recipient</small>
                         </div>
                     </div>
+                    
                     <div style="display:flex; border-bottom:1px solid #000;">
                         <div style="width:50%; padding:10px; border-right:1px solid #000">
                             <strong>Billed To:</strong><br>
-                            <b>${o.client}</b><br>${o.addr}<br>
-                            ${o.vehicleNo ? '<b>Vehicle No:</b> '+o.vehicleNo : ''}
+                            <b>${o.client}</b><br>Phone: ${o.phone}
                         </div>
                         <div style="width:50%; padding:10px;">
                             <table width="100%">
-                                <tr><td><strong>Inv No:</strong> ${o.invNo}</td><td><strong>Date:</strong> ${o.date}</td></tr>
+                                <tr><td><strong>Inv No:</strong> ${o.invNo}</td><td><strong>Date:</strong> ${new Date().toLocaleDateString()}</td></tr>
                                 <tr><td><strong>PO No:</strong> ${o.poNo}</td><td><strong>PO Date:</strong> ${o.poDate}</td></tr>
                             </table>
                         </div>
                     </div>
-                    <div style="min-height:450px;">
+
+                    <div style="min-height:400px;">
                         <table class="doc-table">
                             <thead>
                                 <tr>
                                     <th width="5%">#</th>
                                     <th>Description</th>
-                                    <th width="8%">HSN</th>
-                                    <th width="8%">Qty</th>
-                                    ${isInv ? `<th width="10%">Rate</th><th width="12%">Amount</th>${taxHead}` : ''}
+                                    <th width="10%">Qty</th>
+                                    ${isInv ? `<th width="15%">Amount</th>` : ''}
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td align="center">1</td>
                                     <td><b>${o.desc}</b></td>
-                                    <td align="center">${o.hsn}</td>
                                     <td align="center"><b>${o.qty}</b></td>
-                                    ${isInv ? `<td align="right">${o.rate}</td><td align="right">${o.basic.toFixed(2)}</td>${taxBody}` : ''}
+                                    ${isInv ? `<td align="right">${o.total.toFixed(2)}</td>` : ''}
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+
                     <div class="doc-footer">
                         <div style="width:60%; border-right:1px solid #000; padding:10px;">
-                            <strong>Terms & Conditions:</strong>
+                            <strong>Terms:</strong>
                             <ol style="margin:5px; padding-left:15px;">
-                                <li>Subject to Aurangabad Jurisdiction.</li>
-                                <li>Interest @24% on delayed payments.</li>
+                                <li>Subject to Jurisdiction.</li>
+                                <li>E. & O.E.</li>
                             </ol>
                             ${isInv ? `
-                            <div style="border:1px dashed #000; background:#f9f9f9; padding:5px; margin-top:10px;">
-                                <b>Bank:</b> CHIKHLI URBAN CO-OP BANK LTD<br>
-                                <b>A/c:</b> 025011100000132 | <b>IFSC:</b> YESB0CCUB25
-                            </div>
-                            <div style="margin-top:10px; font-weight:bold;">Amount: ${printer.numToWords(o.total)}</div>
-                            <div style="margin-top:5px; font-size:10px;"><i>We declare that this invoice shows the actual price of the goods described.</i></div>
+                            <div style="margin-top:20px; font-weight:bold;">Amount: ${printer.numToWords(o.total)}</div>
                             ` : `<div style="margin-top:50px; border:1px solid #000; width:150px; height:50px; text-align:center; padding-top:15px;">Receiver's Stamp</div>`}
                         </div>
                         <div style="width:40%; display:flex; flex-direction:column;">
                             ${isInv ? `
-                            <div style="display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #ccc;"><span>Taxable:</span><span>${o.basic.toFixed(2)}</span></div>
-                            <div style="display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #ccc;"><span>CGST:</span><span>${(o.tax/2).toFixed(2)}</span></div>
-                            <div style="display:flex; justify-content:space-between; padding:5px 10px; border-bottom:1px solid #ccc;"><span>SGST:</span><span>${(o.tax/2).toFixed(2)}</span></div>
+                            ${taxRows}
                             <div style="display:flex; justify-content:space-between; padding:10px; background:#ddd; font-weight:bold; border-top:2px solid #000;"><span>TOTAL</span><span>₹${o.total.toFixed(2)}</span></div>
                             ` : ''}
                             <div style="margin-top:auto; text-align:center; padding:20px;">
-                                <b>For MIB</b><br><br><br><span style="border-top:1px solid #000;">Authorized Signatory</span>
+                                <b>For ${comp.title}</b><br><br><br><span style="border-top:1px solid #000;">Authorized Signatory</span>
                             </div>
                         </div>
                     </div>
@@ -578,8 +550,16 @@
             }
         };
 
+        const router = {
+            navigate: (id) => {
+                document.getElementById('dashboard-section').style.display = id==='dashboard'?'block':'none';
+                document.getElementById('entry-section').style.display = id==='entry'?'block':'none';
+                if(id==='dashboard') dashboard.init();
+            }
+        };
+
         window.onload = system.init;
     </script>
 </body>
-
 </html>
+
